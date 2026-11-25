@@ -1,0 +1,324 @@
+task:
+  name: wipe_v2_dual_rgb_state_tactile_dp
+  shape_meta:
+    obs:
+      robot_qpos:
+        shape:
+        - 14
+        type: low_dim
+      gelsight_left_marker_offset_emb:
+        shape:
+        - 15
+        type: low_dim
+      gelsight_right_marker_offset_emb:
+        shape:
+        - 15
+        type: low_dim
+      cam_high:
+        shape:
+        - 3
+        - 240
+        - 320
+        type: rgb
+      cam_left_wrist:
+        shape:
+        - 3
+        - 240
+        - 320
+        type: rgb
+      cam_right_wrist:
+        shape:
+        - 3
+        - 240
+        - 320
+        type: rgb
+    extended_obs: {}
+    action:
+      shape:
+      - 14
+  dataset:
+    _target_: adavip.real_world.wipe_v2.dataset.WipeV2Dataset
+    shape_meta:
+      obs:
+        robot_qpos:
+          shape:
+          - 14
+          type: low_dim
+        gelsight_left_marker_offset_emb:
+          shape:
+          - 15
+          type: low_dim
+        gelsight_right_marker_offset_emb:
+          shape:
+          - 15
+          type: low_dim
+        cam_high:
+          shape:
+          - 3
+          - 240
+          - 320
+          type: rgb
+        cam_left_wrist:
+          shape:
+          - 3
+          - 240
+          - 320
+          type: rgb
+        cam_right_wrist:
+          shape:
+          - 3
+          - 240
+          - 320
+          type: rgb
+      extended_obs: {}
+      action:
+        shape:
+        - 14
+    dataset_path: ${oc.env:WIPE_V2_DATA}
+    horizon: 32
+    pad_before: 3
+    pad_after: 28
+    n_obs_steps: 4
+    obs_temporal_downsample_ratio: 2
+    n_latency_steps: 0
+    seed: 42
+    val_ratio: 0.2
+    max_train_episodes: null
+    delta_action: false
+    relative_action: false
+name: train_diffusion_unet_image
+_target_: adavip.real_world.wipe_v2.dp_workspace.WipeV2DPWorkspace
+task_name: wipe_v2_dual_rgb_state_tactile_dp
+shape_meta:
+  obs:
+    robot_qpos:
+      shape:
+      - 14
+      type: low_dim
+    gelsight_left_marker_offset_emb:
+      shape:
+      - 15
+      type: low_dim
+    gelsight_right_marker_offset_emb:
+      shape:
+      - 15
+      type: low_dim
+    cam_high:
+      shape:
+      - 3
+      - 240
+      - 320
+      type: rgb
+    cam_left_wrist:
+      shape:
+      - 3
+      - 240
+      - 320
+      type: rgb
+    cam_right_wrist:
+      shape:
+      - 3
+      - 240
+      - 320
+      type: rgb
+  extended_obs: {}
+  action:
+    shape:
+    - 14
+exp_name: wipe_v2_dual_tactile_official_dp64
+horizon: 32
+n_obs_steps: 2
+n_latency_steps: 0
+dataset_obs_steps: 4
+n_action_steps: 29
+past_action_visible: false
+keypoint_visible_rate: 1.0
+obs_as_global_cond: true
+policy:
+  _target_: adavip.real_world.wipe_v2.dp_policy.WipeActionDP
+  shape_meta:
+    obs:
+      robot_qpos:
+        shape:
+        - 14
+        type: low_dim
+      gelsight_left_marker_offset_emb:
+        shape:
+        - 15
+        type: low_dim
+      gelsight_right_marker_offset_emb:
+        shape:
+        - 15
+        type: low_dim
+      cam_high:
+        shape:
+        - 3
+        - 240
+        - 320
+        type: rgb
+      cam_left_wrist:
+        shape:
+        - 3
+        - 240
+        - 320
+        type: rgb
+      cam_right_wrist:
+        shape:
+        - 3
+        - 240
+        - 320
+        type: rgb
+    extended_obs: {}
+    action:
+      shape:
+      - 14
+  noise_scheduler:
+    _target_: diffusers.schedulers.scheduling_ddim.DDIMScheduler
+    num_train_timesteps: 100
+    beta_start: 0.0001
+    beta_end: 0.02
+    beta_schedule: squaredcos_cap_v2
+    clip_sample: true
+    set_alpha_to_one: true
+    steps_offset: 0
+    prediction_type: epsilon
+  obs_encoder:
+    _target_: reactive_diffusion_policy.model.vision.multi_image_obs_encoder.MultiImageObsEncoder
+    shape_meta:
+      obs:
+        robot_qpos:
+          shape:
+          - 14
+          type: low_dim
+        gelsight_left_marker_offset_emb:
+          shape:
+          - 15
+          type: low_dim
+        gelsight_right_marker_offset_emb:
+          shape:
+          - 15
+          type: low_dim
+        cam_high:
+          shape:
+          - 3
+          - 240
+          - 320
+          type: rgb
+        cam_left_wrist:
+          shape:
+          - 3
+          - 240
+          - 320
+          type: rgb
+        cam_right_wrist:
+          shape:
+          - 3
+          - 240
+          - 320
+          type: rgb
+      extended_obs: {}
+      action:
+        shape:
+        - 14
+    rgb_model:
+      _target_: reactive_diffusion_policy.model.vision.model_getter.get_resnet
+      name: resnet18
+      weights: null
+    resize_shape:
+    - 240
+    - 320
+    random_transforms:
+    - type: RandomCrop
+      ratio: 0.9
+    use_group_norm: true
+    share_rgb_model: false
+    imagenet_norm: true
+  horizon: 32
+  n_action_steps: 29
+  n_obs_steps: 2
+  num_inference_steps: 100
+  obs_as_global_cond: true
+  diffusion_step_embed_dim: 128
+  down_dims:
+  - 512
+  - 1024
+  - 2048
+  kernel_size: 5
+  n_groups: 8
+  cond_predict_scale: true
+  action_start: 3
+ema:
+  _target_: reactive_diffusion_policy.model.diffusion.ema_model.EMAModel
+  update_after_step: 0
+  inv_gamma: 1.0
+  power: 0.75
+  min_value: 0.0
+  max_value: 0.9999
+dataloader:
+  batch_size: 64
+  num_workers: 8
+  shuffle: true
+  pin_memory: true
+  persistent_workers: true
+  prefetch_factor: 2
+  drop_last: false
+val_dataloader:
+  batch_size: 64
+  num_workers: 8
+  shuffle: false
+  pin_memory: true
+  persistent_workers: true
+  prefetch_factor: 2
+  drop_last: false
+optimizer:
+  _target_: torch.optim.AdamW
+  lr: 0.0001
+  betas:
+  - 0.95
+  - 0.999
+  eps: 1.0e-08
+  weight_decay: 1.0e-06
+  encoder_weight_decay: 1.0e-06
+training:
+  device: cuda:0
+  seed: 42
+  debug: false
+  resume: false
+  lr_scheduler: cosine
+  lr_warmup_steps: 500
+  num_epochs: 600
+  gradient_accumulate_every: 1
+  use_ema: true
+  freeze_encoder: false
+  rollout_every: 50
+  checkpoint_every: 1
+  val_every: 1
+  sample_every: 5
+  max_train_steps: null
+  max_val_steps: null
+  tqdm_interval_sec: 1.0
+  layer_decay: 1.0
+  encoder_lr_coefficient: 0.1
+logging:
+  project: wipe_v2_dp
+  resume: true
+  mode: disabled
+  name: wipe_v2_tactile_dp64_epoch600_seed42
+  tags:
+  - wipe_v2
+  - dp
+  - tactile
+  - batch64
+  - seed42
+  id: null
+  group: null
+checkpoint:
+  keep_epochs: [20, 40, 60, 100]
+  topk:
+    monitor_key: val_loss
+    mode: min
+    k: 1
+    format_str: epoch={epoch:04d}-val_loss={val_loss:.8f}.ckpt
+  save_last_ckpt: true
+  save_last_snapshot: false
+dataset_obs_temporal_downsample_ratio: 2

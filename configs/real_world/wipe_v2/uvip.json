@@ -1,0 +1,86 @@
+{
+    "task":  "wipe_v2",
+    "upstream_revision":  "b9fb25e122d726d2e7ba7da1b7d8c7998a1405ab",
+    "state_key":  "robot_qpos",
+    "action_dim":  14,
+    "action_semantics":  "selected_master_position_from_next_snapshot; absolute joint/gripper; left [0:7], right [7:14]",
+    "vision_keys":  [
+                        "cam_high",
+                        "cam_left_wrist",
+                        "cam_right_wrist"
+                    ],
+    "image_keys":  [
+                       "cam_high",
+                       "cam_left_wrist",
+                       "cam_right_wrist",
+                       "gelsight_left",
+                       "gelsight_right"
+                   ],
+    "raw_image_order":  [
+                            "cam_high",
+                            "cam_left_wrist",
+                            "cam_right_wrist",
+                            "gelsight_left",
+                            "gelsight_right"
+                        ],
+    "image_shapes":  {
+                         "cam_high":  [
+                                          256,
+                                          256
+                                      ],
+                         "cam_left_wrist":  [
+                                                256,
+                                                256
+                                            ],
+                         "cam_right_wrist":  [
+                                                 256,
+                                                 256
+                                             ],
+                         "gelsight_left":  [
+                                               320,
+                                               240
+                                           ],
+                         "gelsight_right":  [
+                                                320,
+                                                240
+                                            ]
+                     },
+    "history_offsets":  [
+                            -2,
+                            0
+                        ],
+    "horizon":  32,
+    "action_start":  3,
+    "n_action_steps":  29,
+    "control_hz":  30,
+    "down_dims":  [
+                      512,
+                      1024,
+                      2048
+                  ],
+    "inference_steps":  100,
+    "utility_weight":  0.05,
+    "utility_names":  [
+                          "cam_high",
+                          "cam_left_wrist",
+                          "cam_right_wrist",
+                          "gelsight_left",
+                          "gelsight_right",
+                          "state",
+                          "language",
+                          "vision_joint",
+                          "tactile_joint"
+                      ],
+    "teacher_epochs":  500,
+    "student_epochs":  600,
+    "learning_rate":  8E-05,
+    "warmup_steps":  500,
+    "seed":  42,
+    "label_seed":  9042,
+    "batch_size":  256,
+    "workers":  16,
+    "checkpoint_steps":  1000,
+    "label_shard_size":  16,
+    "label_window_batch":  2,
+    "label_microbatch":  8
+}

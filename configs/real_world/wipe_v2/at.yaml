@@ -1,0 +1,50 @@
+defaults:
+  - train_at_workspace
+  - override at: at_wipe_lift
+  - _self_
+
+_target_: adavip.real_world.wipe_v2.at_workspace.WipeV2ATWorkspace
+task:
+  name: wipe_v2_dual_at
+  shape_meta:
+    obs:
+      robot_qpos: {shape: [14], type: low_dim}
+      gelsight_left_marker_offset_emb: {shape: [15], type: low_dim}
+      gelsight_right_marker_offset_emb: {shape: [15], type: low_dim}
+    extended_obs:
+      gelsight_left_marker_offset_emb: {shape: [15], type: low_dim}
+      gelsight_right_marker_offset_emb: {shape: [15], type: low_dim}
+    action: {shape: [14]}
+  dataset:
+    _target_: adavip.real_world.wipe_v2.dataset.WipeV2Dataset
+    shape_meta: ${task.shape_meta}
+    dataset_path: ${oc.env:WIPE_V2_DATA}
+    horizon: 32
+    pad_before: 3
+    pad_after: 28
+    n_obs_steps: 4
+    obs_temporal_downsample_ratio: 2
+    n_latency_steps: 0
+    seed: 42
+    val_ratio: 0.2
+    max_train_episodes: null
+    delta_action: false
+    relative_action: false
+policy:
+  _target_: adavip.real_world.piper_rdp_at.PiperVAE
+dataloader:
+  batch_size: 128
+  num_workers: 8
+  prefetch_factor: 2
+  drop_last: false
+val_dataloader:
+  batch_size: 128
+  num_workers: 4
+  prefetch_factor: 1
+  drop_last: false
+training:
+  resume: false
+  checkpoint_every: 1
+logging:
+  mode: disabled
+  name: wipe_v2_at128_epoch601_seed42
